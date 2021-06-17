@@ -74,19 +74,20 @@ func NewSyncConfig(configFile, authFilePath, imageFilePath, platformFilePath, de
 			}
 
 			var p *tools.Platform = &config.Platform
-			p.Source.IsExclude = len(p.Source.Exclude) != 0
+			p.Source.IsExclude = true
 			filters := p.Source.Exclude
-			if len(p.Source.Include) != 0 {
+			if len(p.Source.Include) != 0 && len(filters) == 0 {
 				filters = p.Source.Include
+				p.Source.IsExclude = false
 			}
 
-			p.Source.Filters = make([]tools.Filter, 0)
+			p.Source.Filters = make([]tools.RepoFilter, 0)
 			for _, v := range filters {
 				if url, err := tools.NewRepoURL(v); err != nil {
 					return nil, fmt.Errorf("decode platform file %v error: %v", platformFilePath, err)
 				} else {
 					p.Source.Filters = append(p.Source.Filters,
-						tools.Filter{Registry: url.GetRegistry(), Repository: url.GetRepoWithNamespace(), Tag: url.GetTag()})
+						tools.RepoFilter{Registry: url.GetRegistry(), Repository: url.GetRepoWithNamespace(), Tag: url.GetTag()})
 				}
 			}
 		}

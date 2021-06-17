@@ -6,7 +6,7 @@ import (
 	"github.com/containers/image/v5/manifest"
 )
 
-type Filter struct {
+type RepoFilter struct {
 	Registry   string
 	Repository string
 	Tag        string
@@ -32,7 +32,7 @@ type Platform struct {
 		IsExclude bool
 
 		// parsed filter
-		Filters []Filter
+		Filters []RepoFilter
 	} `json:"source" yaml:"source"`
 }
 
@@ -54,6 +54,7 @@ func (p *Platform) Match(registry string, repo string, tag string, platform *man
 			(p.Repository == "" || p.Repository == repo) &&
 			(p.Tag == "" || p.Tag == tag) {
 			doSelect = !doSelect
+			break
 		}
 	}
 
@@ -73,7 +74,7 @@ func (p *Platform) Match(registry string, repo string, tag string, platform *man
 		if len(p.ArchList) != 0 {
 			archMatched = false
 			for _, a := range p.ArchList {
-				// match arch:variant
+				// match architecture:variant
 				if colonMatch(a, platform.Architecture, platform.Variant) {
 					archMatched = true
 				}
